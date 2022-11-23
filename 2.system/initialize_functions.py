@@ -64,7 +64,6 @@ for i in os.listdir(os.path.join(paths['CHECKPOINT_PATH'])):
     if 'ckpt' in i and '.index'in i:
         checkpoint = i
 checkpoint = checkpoint[:checkpoint.find('.')]
-print(checkpoint)
 
 # Restore checkpoint
 ckpt = tf.compat.v2.train.Checkpoint(model=detection_model)
