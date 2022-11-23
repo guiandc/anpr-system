@@ -86,8 +86,7 @@ category_index = label_map_util.create_category_index_from_labelmap(files['LABEL
 detection_threshold = 0.2
 
 def prepareIMG(image):
-    img = cv2.imread(image)
-    image_np = np.array(img)
+    image_np = np.array(image)
 
     input_tensor = tf.convert_to_tensor(np.expand_dims(image_np, 0), dtype=tf.float32)
     detections = detect_fn(input_tensor)
@@ -189,45 +188,47 @@ similar_char_to_number = {
 }  
  
 def format_ocr(ocr_result):
-    for result in ocr_result:
-        result = result.replace(' ','')
-        
-        if len(result) == 7:
-            #FORMATO CLASSICO ABC1234
-            #FORMATO MERCOSUL ABC1D23
-            #CHECAGEM         1234x56
+    try:
+        for result in ocr_result:
+            result = result.replace(' ','')
 
-            char0 = str(result[0])
-            char1 = str(result[1])
-            char2 = str(result[2])
-            char3 = str(result[3])
-            char4 = str(result[4])
-            char5 = str(result[5])
-            char6 = str(result[6])
+            if len(result) == 7:
+                #FORMATO CLASSICO ABC1234
+                #FORMATO MERCOSUL ABC1D23
+                #CHECAGEM         1234x56
 
-            if char0 in("0123456789"):
-                try:
-                    char0 = similar_number_to_char[char0]
-                except: pass          
-            if char1 in("0123456789"):
-                try:
-                    char1 = similar_number_to_char[char1]
-                except: pass          
-            if char2 in("0123456789"):
-                try:
-                    char2 = similar_number_to_char[char2]
-                except: pass            
-            if char3 not in("0123456789"):
-                try:
-                    char3 = similar_char_to_number[char3]
-                except: pass            
-            if char5 not in("0123456789"):
-                try:
-                    char5 = similar_char_to_number[char5]
-                except: pass          
-            if char6 not in("0123456789"):
-                try:
-                    char6 = similar_char_to_number[char6]
-                except: pass
+                char0 = str(result[0])
+                char1 = str(result[1])
+                char2 = str(result[2])
+                char3 = str(result[3])
+                char4 = str(result[4])
+                char5 = str(result[5])
+                char6 = str(result[6])
 
-            return str(char0+char1+char2+char3+char4+char5+char6)
+                if char0 in("0123456789"):
+                    try:
+                        char0 = similar_number_to_char[char0]
+                    except: pass          
+                if char1 in("0123456789"):
+                    try:
+                        char1 = similar_number_to_char[char1]
+                    except: pass          
+                if char2 in("0123456789"):
+                    try:
+                        char2 = similar_number_to_char[char2]
+                    except: pass            
+                if char3 not in("0123456789"):
+                    try:
+                        char3 = similar_char_to_number[char3]
+                    except: pass            
+                if char5 not in("0123456789"):
+                    try:
+                        char5 = similar_char_to_number[char5]
+                    except: pass          
+                if char6 not in("0123456789"):
+                    try:
+                        char6 = similar_char_to_number[char6]
+                    except: pass
+
+                return str(char0+char1+char2+char3+char4+char5+char6)
+    except: pass
