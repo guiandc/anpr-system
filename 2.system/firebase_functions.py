@@ -6,10 +6,10 @@ import time
 from io import BytesIO
 from PIL import Image
 
-cred = credentials.Certificate(open('../Firebase_Key.txt', 'r'))
+cred = credentials.Certificate(open('', 'r'))
 if not app:
     app = firebase_admin.initialize_app(cred, {
-        'storageBucket': 'esp32-38197.appspot.com',
+        'storageBucket': '',
     }, name='storage')
 
 bucket = storage.bucket(app=app)
