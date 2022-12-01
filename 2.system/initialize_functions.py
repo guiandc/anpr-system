@@ -113,7 +113,7 @@ def prepareIMG(image):
                 ,min_score_thresh=detection_threshold
                 ,agnostic_mode=False)
     
-    #plt.imshow(image_np_with_detections)
+    plt.imshow(image_np_with_detections)
     return image_np, detections
 
 import easyocr
@@ -135,10 +135,10 @@ def ocr(image, detections, detection_threshold, value):
         reader = easyocr.Reader(['en'], gpu=True, verbose=False)
         ocr_result = reader.readtext(binary
                                    , allowlist = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-                                   , text_threshold = 0
-                                   , low_text = 0.50
-                                   , link_threshold  = 0.3
-                                   , mag_ratio = 0.9
+                                   , text_threshold = 0.2
+                                   , low_text = 0.5
+                                   , link_threshold  = 0.03
+                                   , mag_ratio = 0.8
                                    , detail = 0
                                    , paragraph = 1)
         return (ocr_result)

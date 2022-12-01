@@ -10,16 +10,21 @@ def checkSpot(spot_id):
     x = requests.get(url)
     return x.text
 
-def setParkingSpotStatus(spot_id, spot_status, plate):
+def setParkingSpotStatus(spot_id, spot_status, plate_id):
     url = 'https://tcc-parking-iot.herokuapp.com/parking-spots/set-parking-spot-status/'+str(spot_id)
     myobj = {
         "name" : '',
         "available" : spot_status,
         "plate" : {
-            "id" : plate
+            "id" : plate_id
         }
     }
     x = requests.put(url, json = myobj)
+    return x.text
+
+def listParkingSpots():
+    url = 'https://tcc-parking-iot.herokuapp.com/parking-spots'
+    x = requests.get(url)
     return x.text
 
 def createNewParkingSpot(spot_name):
