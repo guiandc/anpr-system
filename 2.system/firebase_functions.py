@@ -6,17 +6,24 @@ import time
 from io import BytesIO
 from PIL import Image
 
-cred = credentials.Certificate(open('', 'r'))
+fb_id = {
+
+}
+
+cred = credentials.Certificate(fb_id)
+
+app = None
+
 if not app:
     app = firebase_admin.initialize_app(cred, {
-        'storageBucket': '',
+        
     }, name='storage')
 
 bucket = storage.bucket(app=app)
 
-def get_enter_image():
+def get_image(image_path, image_name):
     try:
-        blob = bucket.get_blob("data/enter.jpg")
+        blob = bucket.get_blob("{}/{}.jpg".format(image_path, image_name))
         if blob:
             arr = (blob.download_as_string(), np.uint8) #array of bytes
             img = Image.open(BytesIO(blob.download_as_bytes()))
