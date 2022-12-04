@@ -10,4 +10,3 @@ TO CREATE AN ENVIROMENT
 5- pip install ipykernel
 6- pip install jupyter
 7- python -m ipykernel install --user --name=NAME
-
