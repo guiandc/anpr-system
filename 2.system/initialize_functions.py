@@ -83,68 +83,69 @@ from matplotlib import pyplot as plt
 
 category_index = label_map_util.create_category_index_from_labelmap(files['LABELMAP'])
 
-detection_threshold = 0.2
+detection_threshold = 0.7
 
 def prepareIMG(image):
-    image_np = np.array(image)
+    try:
+        image_np = np.array(image)
 
-    input_tensor = tf.convert_to_tensor(np.expand_dims(image_np, 0), dtype=tf.float32)
-    detections = detect_fn(input_tensor)
+        input_tensor = tf.convert_to_tensor(np.expand_dims(image_np, 0), dtype=tf.float32)
+        detections = detect_fn(input_tensor)
 
-    num_detections = int(detections.pop('num_detections'))
-    detections = {key: value[0, :num_detections].numpy()
-                  for key, value in detections.items()}
-    detections['num_detections'] = num_detections
+        num_detections = int(detections.pop('num_detections'))
+        detections = {key: value[0, :num_detections].numpy()
+                      for key, value in detections.items()}
+        detections['num_detections'] = num_detections
 
-    # detection_classes should be ints.
-    detections['detection_classes'] = detections['detection_classes'].astype(np.int64)
+        # detection_classes should be ints.
+        detections['detection_classes'] = detections['detection_classes'].astype(np.int64)
 
-    label_id_offset = 1
-    image_np_with_detections = image_np.copy()
+        label_id_offset = 1
+        image_np_with_detections = image_np.copy()
 
-    viz_utils.visualize_boxes_and_labels_on_image_array(
-                image_np_with_detections
-                ,detections['detection_boxes']
-                ,detections['detection_classes']+label_id_offset
-                ,detections['detection_scores']
-                ,category_index
-                ,use_normalized_coordinates=True
-                ,max_boxes_to_draw=3
-                ,min_score_thresh=detection_threshold
-                ,agnostic_mode=False)
-    
-    #plt.imshow(image_np_with_detections)
-    return image_np, detections
+        viz_utils.visualize_boxes_and_labels_on_image_array(
+                    image_np_with_detections
+                    ,detections['detection_boxes']
+                    ,detections['detection_classes']+label_id_offset
+                    ,detections['detection_scores']
+                    ,category_index
+                    ,use_normalized_coordinates=True
+                    ,max_boxes_to_draw=3
+                    ,min_score_thresh=detection_threshold
+                    ,agnostic_mode=False)
+
+        #plt.imshow(image_np_with_detections)
+        return image_np, detections
+    except:
+        return None, None
 
 import easyocr
 
-def ocr(image, detections, detection_threshold, value):
-    # Scores, boxes and classes above threhold
-    scores = list(filter(lambda x: x> detection_threshold, detections['detection_scores']))
-    boxes = detections['detection_boxes'][:len(scores)]
-    classes = detections['detection_classes'][:len(scores)]
-    # Full image dimensions
-    width = image.shape[1]
-    height = image.shape[0]
-    # Apply ROI filtering and OCR
-    for idx, box in enumerate(boxes):
-        roi = box*[height, width, height, width]
-        crop = image[int(roi[0]):int(roi[2]),int(roi[1]):int(roi[3])]
-        gray_image = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY)
-        (thresh, binary) = cv2.threshold(gray_image, value, 255, cv2.THRESH_BINARY_INV)
-        reader = easyocr.Reader(['en'], gpu=True, verbose=False)
-        ocr_result = reader.readtext(binary
-                                   , allowlist = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-                                   , text_threshold = 0
-                                   , low_text = 0.50
-                                   , link_threshold  = 0.3
-                                   , mag_ratio = 0.9
-                                   , detail = 0
-                                   , paragraph = 1)
-        return (ocr_result)
-    
-def open_gate():
-    print("Catraca aberta")
+def ocr(image, detections, detection_threshold):
+    try:
+        # Scores, boxes and classes above threhold
+        scores = list(filter(lambda x: x> detection_threshold, detections['detection_scores']))
+        boxes = detections['detection_boxes'][:len(scores)]
+        classes = detections['detection_classes'][:len(scores)]
+        # Full image dimensions
+        width = image.shape[1]
+        height = image.shape[0]
+        # Apply ROI filtering and OCR
+        for idx, box in enumerate(boxes):
+            roi = box*[height, width, height, width]
+            crop = image[int(roi[0]):int(roi[2]),int(roi[1]):int(roi[3])]
+            reader = easyocr.Reader(['en'], gpu=True, verbose=False)
+            ocr_result = reader.readtext(crop
+                                       , allowlist = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+                                       , text_threshold = 0.7
+                                       , low_text = 0.3
+                                       , link_threshold  = 0.9
+                                       , mag_ratio = 1
+                                       , detail = 0
+                                       , paragraph = 1)
+            return (ocr_result)
+    except:
+        return None 
 
 similar_number_to_char = {
     '1':'I',
@@ -168,7 +169,7 @@ similar_char_to_number = {
     'G':'6',
     'H':'8',
     'I':'1',
-    'J':'9',
+    'J':'1',
     'K':'4',
     'L':'1',
     'M':'0',
@@ -183,10 +184,10 @@ similar_char_to_number = {
     'V':'7',
     'W':'8',
     'X':'8',
-    'Y':'7',
-    'Z':'8'
-}  
- 
+    'Y':'9',
+    'Z':'2'
+}
+    
 def format_ocr(ocr_result):
     try:
         for result in ocr_result:
@@ -208,27 +209,37 @@ def format_ocr(ocr_result):
                 if char0 in("0123456789"):
                     try:
                         char0 = similar_number_to_char[char0]
-                    except: pass          
+                    except: pass  
+                    
                 if char1 in("0123456789"):
                     try:
                         char1 = similar_number_to_char[char1]
-                    except: pass          
+                    except: pass         
+                    
                 if char2 in("0123456789"):
                     try:
                         char2 = similar_number_to_char[char2]
-                    except: pass            
+                    except: pass   
+                    
                 if char3 not in("0123456789"):
                     try:
                         char3 = similar_char_to_number[char3]
-                    except: pass            
+                    except: pass
+                
                 if char5 not in("0123456789"):
                     try:
                         char5 = similar_char_to_number[char5]
-                    except: pass          
+                    except: pass 
+                    
                 if char6 not in("0123456789"):
                     try:
                         char6 = similar_char_to_number[char6]
                     except: pass
 
                 return str(char0+char1+char2+char3+char4+char5+char6)
-    except: pass
+    except:
+        return None
+
+
+
+

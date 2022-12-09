@@ -7,7 +7,7 @@ from io import BytesIO
 from PIL import Image
 
 fb_id = {
-
+  #credenciais
 }
 
 cred = credentials.Certificate(fb_id)
@@ -16,7 +16,7 @@ app = None
 
 if not app:
     app = firebase_admin.initialize_app(cred, {
-        
+        #credenciais
     }, name='storage')
 
 bucket = storage.bucket(app=app)
@@ -29,5 +29,5 @@ def get_image(image_path, image_name):
             img = Image.open(BytesIO(blob.download_as_bytes()))
             return img
     except:
-        print('error404')
-    time.sleep(1)
+        print()
+        return None
